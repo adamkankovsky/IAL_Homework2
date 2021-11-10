@@ -1,16 +1,16 @@
 CC=gcc
 CFLAGS=-Wall -std=c11 -pedantic -lm
-FILES=btree.c ../btree.c stack.c ../test_util.c ../test.c
+FILES=hashtable.c test.c test_util.c
 
-.PHONY: test clean run
+.PHONY: test clean
 
 test: $(FILES)
-	$(CC) $(CFLAGS) -g -o $@ $(FILES)
+	$(CC) $(CFLAGS) -o $@ $(FILES)
 
 run: test
 	@./test > current-test.output
 	@echo "\nTest output differences:"
-	@diff -su ../btree.out current-test.output
+	@diff -su ht.out current-test.output
 	@rm current-test.output
 
 clean:
