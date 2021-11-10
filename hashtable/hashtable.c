@@ -32,6 +32,9 @@ int get_hash(char *key) {
  * Inicializácia tabuľky — zavolá sa pred prvým použitím tabuľky.
  */
 void ht_init(ht_table_t *table) {
+    for(int i = 0; i < HT_SIZE; i++){
+        (*table)[i] = NULL;
+    }
 }
 
 /*
@@ -41,6 +44,11 @@ void ht_init(ht_table_t *table) {
  * hodnotu NULL.
  */
 ht_item_t *ht_search(ht_table_t *table, char *key) {
+    ht_item_t *searched = (*table)[get_hash(key)];
+    while(searched != NULL){
+        if(searched->key == key) return searched;
+        searched = searched->next;
+    }
   return NULL;
 }
 
@@ -53,6 +61,17 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
 void ht_insert(ht_table_t *table, char *key, float value) {
+    int hash = get_hash(key);
+    ht_item_t *item  = ht_search(table, key);
+    if(item == NULL){
+        ht_item_t *newItem = (ht_item_t *)malloc(sizeof(ht_item_t));
+        newItem->key = key;
+        newItem->value = value;
+        newItem->next = (*table)[hash];
+        (*table)[hash] = newItem;
+    }else{
+        item->value = value;
+    }
 }
 
 /*
@@ -64,7 +83,9 @@ void ht_insert(ht_table_t *table, char *key, float value) {
  * Pri implementácii využite funkciu ht_search.
  */
 float *ht_get(ht_table_t *table, char *key) {
-  return NULL;
+    ht_item_t *item  = ht_search(table, key);
+    if(item != NULL) return &item->value;
+    else return NULL;
 }
 
 /*
@@ -76,6 +97,24 @@ float *ht_get(ht_table_t *table, char *key) {
  * Pri implementácii NEVYUŽÍVAJTE funkciu ht_search.
  */
 void ht_delete(ht_table_t *table, char *key) {
+    int hash = get_hash(key);
+    ht_item_t *ptr;
+    if((*table)[hash]->key == key){
+        ptr = (*table)[hash]->next;
+        free((*table)[hash]);
+        (*table)[hash] = ptr;
+        return;
+    }
+    while((*table)[hash]->next != NULL){
+        if((*table)[hash]->next->key == key){
+            ptr = (*table)[hash]->next;
+            (*table)[hash]->next = (*table)[hash]->next->next;
+            free(ptr);
+            return;
+        }else {
+            (*table)[hash] = (*table)[hash]->next;
+        }
+    }
 }
 
 /*
@@ -85,4 +124,14 @@ void ht_delete(ht_table_t *table, char *key) {
  * inicializácii.
  */
 void ht_delete_all(ht_table_t *table) {
+    for(int i = 0; i < HT_SIZE; i++){
+        ht_item_t *tmp = (*table)[i];
+        ht_item_t *delete;
+        while( tmp != NULL){
+            delete = tmp;
+            tmp = tmp->next;
+            free(delete);
+        }
+        (*table)[i] = NULL;
+    }
 }
