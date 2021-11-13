@@ -46,7 +46,7 @@ void ht_init(ht_table_t *table) {
 ht_item_t *ht_search(ht_table_t *table, char *key) {
     ht_item_t *searched = (*table)[get_hash(key)];
     while(searched != NULL){
-        if(searched->key == key) return searched;
+        if(strcmp(key, searched->key) == 0) return searched;
         searched = searched->next;
     }
   return NULL;
@@ -99,14 +99,14 @@ float *ht_get(ht_table_t *table, char *key) {
 void ht_delete(ht_table_t *table, char *key) {
     int hash = get_hash(key);
     ht_item_t *ptr;
-    if((*table)[hash]->key == key){
+    if(strcmp((*table)[hash]->key, key) == 0){
         ptr = (*table)[hash]->next;
         free((*table)[hash]);
         (*table)[hash] = ptr;
         return;
     }
     while((*table)[hash]->next != NULL){
-        if((*table)[hash]->next->key == key){
+        if(strcmp((*table)[hash]->next->key, key) == 0){
             ptr = (*table)[hash]->next;
             (*table)[hash]->next = (*table)[hash]->next->next;
             free(ptr);
